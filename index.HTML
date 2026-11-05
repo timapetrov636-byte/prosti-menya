@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Прости меня...</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #a1c4fd 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bg-heart {
+    position: fixed;
+    font-size: 24px;
+    opacity: 0.25;
+    animation: floatUp linear infinite;
+    pointer-events: none;
+    user-select: none;
+  }
+  @keyframes floatUp {
+    from { transform: translateY(100vh) rotate(0deg); }
+    to   { transform: translateY(-10vh) rotate(360deg); }
+  }
+  .card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
+    padding: 35px 30px;
+    max-width: 460px;
+    width: 100%;
+    box-shadow: 0 25px 60px rgba(214, 51, 108, 0.25);
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+  .heart-big {
+    font-size: 48px;
+    display: inline-block;
+    animation: beat 1.2s infinite;
+  }
+  @keyframes beat {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.18); }
+  }
+  h1 { color: #d6336c; font-size: 25px; margin: 10px 0 6px; }
+  .sub { color: #777; font-size: 15px; margin-bottom: 22px; }
+  label { display: block; text-align: left; font-size: 13px; color: #555; font-weight: 600; margin: 14px 0 5px; }
+  input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 2px solid #f3d1de;
+    border-radius: 12px;
+    font-size: 15px;
+    font-family: inherit;
+    outline: none;
+    background: #fff;
+  }
+  input:focus { border-color: #d6336c; }
+  .buttons { display: flex; gap: 12px; margin-top: 26px; position: relative; }
+  button {
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .yes {
+    flex: 2;
+    background: linear-gradient(135deg, #d6336c, #ff6b9d);
+    color: #fff;
+    box-shadow: 0 8px 20px rgba(214, 51, 108, 0.35);
+  }
+  .no {
+    flex: 1;
+    background: #eee;
+    color: #666;
+    transition: transform 0.2s ease;
+  }
+  #result { margin-top: 22px; font-size: 17px; color: #d6336c; font-weight: 700; min-height: 24px; white-space: pre-line; }
+</style>
+</head>
+<body>
+
+<!-- ПЕРВЫЙ ЭКРАН -->
+<div class="card" id="firstScreen">
+  <div class="heart-big">💖</div>
+  <h1>Ты простишь меня?</h1>
+  <p class="sub">Мне очень жаль, за то что я появился в твоей жизни...</p>
+
+  <label for="name">Как тебя зовут?</label>
+  <input type="text" id="name" placeholder="Твоё имя...">
+
+  <div class="buttons">
+    <button class="no" id="noBtn">Нет 😔</button>
+    <button class="yes" id="yesBtn">Да 💕</button>
+  </div>
+
+  <div id="result"></div>
+</div>
+
+<!-- ВТОРОЙ ЭКРАН (скрыт изначально) -->
+<div class="card" id="successScreen" style="display: none;">
+  <div class="heart-big">🥺</div>
+  <h1>Спасибо тебе...</h1>
+  <p class="sub">Ты даже не представляешь, как много это для меня значит.</p>
+  
+  <hr style="border: 1px solid #f3d1de; margin: 20px 0;">
+  
+  <h1>Пойдёшь со мной гулять?</h1>
+  <p class="sub">Выбери день, когда ты свободна 😉</p>
+
+  <input type="date" id="date" style="margin-bottom: 15px;">
+  
+  <button class="yes" id="sendDateBtn" style="width: 100%;">Отправить 💌</button>
+  <div id="finalMessage" style="margin-top: 15px; color: #d6336c; font-weight: bold;"></div>
+</div>
+
+<script>
+  // 1. Плавающие сердечки на фоне
+  const hearts = ['💗', '💖', '💘', '💕', '❤️'];
+  for (let i = 0; i < 14; i++) {
+    const h = document.createElement('div');
+    h.className = 'bg-heart';
+    h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+    h.style.left = Math.random() * 100 + 'vw';
+    h.style.fontSize = (16 + Math.random() * 22) + 'px';
+    h.style.animationDuration = (8 + Math.random() * 10) + 's';
+    h.style.animationDelay = (-Math.random() * 15) + 's';
+    document.body.appendChild(h);
+  }
+
+  // 2. Кнопка "Нет"
+  const noBtn = document.getElementById('noBtn');
+  function runAway() {
+    const x = (Math.random() - 0.5) * 200;
+    const y = (Math.random() - 0.5) * 200;
+    noBtn.style.transform = `translate(${x}px, ${y}px)`;
+  }
+  noBtn.addEventListener('mouseenter', runAway);
+  noBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    runAway();
+    document.getElementById('result').textContent = 'Кнопка не хочет, чтобы ты отказывалась 😅';
+  });
+
+  // 3. Кнопка "Да" (переход на 2-й экран и отправка имени)
+  const yesBtn = document.getElementById('yesBtn');
+  yesBtn.addEventListener('click', () => {
+    const name = document.getElementById('name').value.trim() || 'Аноним';
+
+    // Переключаем экраны
+    document.getElementById('firstScreen').style.display = 'none';
+    document.getElementById('successScreen').style.display = 'block';
+    burstHearts();
+
+    // Отправка в Telegram (Имя)
+    const TOKEN = ''; 
+    const CHAT_ID = '1224760708';   
+    const message = `💖 Тебя простили!\n\nИмя: ${name}`;
+    const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
+    fetch(url).catch(error => console.log('Ошибка:', error));
+  });
+
+  // 4. Кнопка "Отправить дату"
+  const sendDateBtn = document.getElementById('sendDateBtn');
+  sendDateBtn.addEventListener('click', () => {
+    const dateInput = document.getElementById('date').value;
+
+    if (!dateInput) {
+      alert('Пожалуйста, выбери дату!');
+      return;
+    }
+
+    const d = new Date(dateInput);
+    const formatted = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    document.getElementById('finalMessage').textContent = `Договорились! Жду тебя ${formatted} 💕`;
+    sendDateBtn.style.display = 'none';
+
+    // Отправка в Telegram (Дата)
+    const TOKEN = ''; 
+    const CHAT_ID = '1224760708';   
+    const message = `🎉 Она согласилась пойти гулять!\n\nДата: ${formatted}`;
+    const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
+    fetch(url).catch(error => console.log('Ошибка:', error));
+  });
+
+  // 5. Салют из сердечек
+  function burstHearts() {
+    for (let i = 0; i < 30; i++) {
+      const h = document.createElement('div');
+      h.className = 'bg-heart';
+      h.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+      h.style.left = '50%';
+      h.style.top = '50%';
+      h.style.fontSize = (18 + Math.random() * 20) + 'px';
+      h.style.opacity = '1';
+      h.style.animation = 'none';
+      h.style.transition = 'transform 1.2s ease-out, opacity 1.2s ease-out';
+      document.body.appendChild(h);
+
+      const angle = Math.random() * Math.PI * 2;
+      const dist = 100 + Math.random() * 250;
+      const x = Math.cos(angle) * dist;
+      const y = Math.sin(angle) * dist;
+
+      requestAnimationFrame(() => {
+        h.style.transform = `translate(${x}px, ${y}px) scale(1.4)`;
+        h.style.opacity = '0';
+      });
+      setTimeout(() => h.remove(), 1300);
+    }
+  }
+</script>
+</body>
+</html>
